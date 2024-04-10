@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+    />
+
+    <!-- Lightbox CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css"
+    />
+
+    <!-- Font Awesome CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+
+    <title>Image Uploader</title>
+    <style>
+      body {
+        background-color: #ffe6f2;
+        /* Light pink background */
+      }
+
+      .container {
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+      }
+
+      .card-img-top {
+        max-width: 400px;
+        max-height: 400px;
+        width: auto;
+        height: auto;
+        cursor: pointer;
+        /* Add cursor pointer for better UX */
+      }
+
+      .btn-danger {
+        background-color: #ff4081;
+        /* Pink button background */
+        border-color: #ff4081;
+        /* Pink button border */
+      }
+
+      .btn-danger:hover {
+        background-color: #ff1a53;
+        /* Darker pink on hover */
+        border-color: #ff1a53;
+        /* Darker pink border on hover */
+      }
+
+      .btn-success {
+        background-color: #4caf50;
+        /* Green button background */
+        border-color: #4caf50;
+        /* Green button border */
+      }
+
+      .btn-success:hover {
+        background-color: #45a049;
+        /* Darker green on hover */
+        border-color: #45a049;
+        /* Darker green border on hover */
+      }
+
+      .share-btns {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .share-btns a {
+        display: block;
+        width: 32px;
+        height: 32px;
+        background-repeat: no-repeat;
+        background-size: cover;
+        transition: opacity 0.3s;
+      }
+
+      .share-btns a:hover {
+        opacity: 0.7;
+      }
+
+      .share-btns .facebook {
+        background-image: url("https://example.com/facebook.png");
+        /* Replace with your Facebook icon URL */
+      }
+
+      .share-btns .twitter {
+        background-image: url("https://example.com/twitter.png");
+        /* Replace with your Twitter icon URL */
+      }
+
+      .share-btns .linkedin {
+        background-image: url("https://example.com/linkedin.png");
+        /* Replace with your LinkedIn icon URL */
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="py-5 text-center bg-secondary text-white">
+        <h1 class="mb-3">Upload Image</h1>
+        <form action="" method="post" enctype="multipart/form-data">
+          {% csrf_token %} {{form}}
+          <input type="submit" class="btn btn-danger" value="Upload" />
+        </form>
+      </div>
+      <div class="row">
+        {% for x in img %}
+        <div class="col-sm-4">
+          <a
+            href="{{x.photo.url}}"
+            data-lightbox="image-gallery"
+            data-title="{{x.date}}"
+          >
+            <div class="card m-2">
+              <img src="{{x.photo.url}}" alt="" class="card-img-top" />
+              <div class="card-footer">
+                <small class="text-muted">{{x.date}}</small>
+                <div class="mt-2 share-btns">
+                  <a
+                    href="https://www.facebook.com/sharer.php?u={{x.photo.url}}"
+                    class="facebook"
+                  ></a>
+                  <a
+                    href="https://twitter.com/intent/tweet?url={{x.photo.url}}"
+                    class="twitter"
+                  ></a>
+                  <a
+                    href="https://www.linkedin.com/sharing/share-offsite/?url={{x.photo.url}}"
+                    class="linkedin"
+                  ></a>
+                </div>
+                <div class="mt-2">
+                  <button
+                    type="button"
+                    class="btn btn-danger"
+                    onclick="deleteImage({{ x.id }})"
+                  >
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                </div>
+                <div class="mt-2">
+                  <a
+                    href="{% url 'download_image' x.id %}"
+                    class="btn btn-success"
+                    ><i class="fas fa-download"></i> Download</a
+                  >
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Lightbox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+
+    <script>
+      function deleteImage(imageId) {
+        if (confirm("Are you sure you want to delete this image?")) {
+          $.ajax({
+            url: "/delete_image/" + imageId + "/",
+            type: "POST",
+            data: {
+              csrfmiddlewaretoken: "{{ csrf_token }}",
+            },
+            success: function () {
+              location.reload();
+            },
+            error: function (xhr, errmsg, err) {
+              console.log(xhr.status + ": " + xhr.responseText);
+            },
+          });
+        }
+      }
+    </script>
+  </body>
+</html>
